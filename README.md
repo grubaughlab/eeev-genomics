@@ -1,7 +1,7 @@
 ## README
 
 Data for the paper Dynamics of Eastern equine encephalitis virus during the 2019 outbreak in the Northeast United States 
-[biorxiv link]
+https://www.medrxiv.org/content/10.1101/2023.03.06.23286851v1
 
 - genomic_data: the alignment and associated metadata. This contains newly sequenced samples, and publicly available samples from genbank.
 - phylogenetic_data: raw and processed output files from BEAST analyses, and XMLs. Also includes "recorded_outbreaks.csv", used to generate starting points for skygrid covariates prior to 2003
