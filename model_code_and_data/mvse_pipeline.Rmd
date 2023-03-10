@@ -112,6 +112,6 @@ source("scripts/data_clean_for_model.R")
 WHAT SCRIPT BELOW DOES
 
 ```{r}
-source("scripts/modeling.R")
+source("scripts/modeling_by_month.R")
 ```
 
