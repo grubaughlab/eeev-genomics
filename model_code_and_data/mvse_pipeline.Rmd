@@ -1,0 +1,117 @@
+---
+title: "mvse_pipeline"
+author: "Toby Koch"
+date: '2022-08-11'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, prompt = F, include = F, warning = F)
+rm(list = ls())
+#create data directories because they are not ignored in the github repository
+if(!dir.exists("data_mid")){
+  dir.create("data_mid")
+}
+
+if(!dir.exists("data_output")){
+  dir.create("data_output")
+}
+```
+
+WHAT SCRIPT BELOW DOES
+Get FIPS data for matching with counties you want to keep in the shape file for calculating centroids
+```{bash engine.opts ='-l'}
+wget -P data_input/ -O data_input/us_fips.csv https://gist.githubusercontent.com/dantonnoriega/bf1acd2290e15b91e6710b6fd3be0a53/raw/11d15233327c8080c9646c7e1f23052659db251d/us-state-ansi-fips.csv
+```
+
+BEFORE RUNNING ENSURE THAT THE FOLLOWING FILES ARE IN YOUR data_input folder:
+1. countries.csv: COUNTRIES/REGIONS YOU WISH TO FILTER FOR
+2. MVSE.R has been downloaded from https://sourceforge.net/projects/mvse/
+
+BEFORE RUNNING ENSURE DATA HAVE BEEN DOWNLOADED IN THE DATA INPUT FOLDER
+
+WHAT SCRIPT BELOW DOES
+scripts/weather_data_mvse_prep.R
+1. identifies counties with and without Hx of cases
+2. identifies counties and there centroids for averaging the weather
+3. was using to create lat and long data for the visual crossing data
+
+
+```{bash}
+#pulls in country data to filter stations in your desired locations
+
+scripts/weather_data_mvse_prep.R -m centroid
+
+#note: it sources the function to pull the state but may be 
+```
+
+NEXT STEP IS TO USE THE WEATHER_STATION_BATCH.CSV TO UPLOAD TO https://visualcrossing.com 
+and put resulting file back into data_input called weather_data.csv
+
+WHAT SCRIPT DOES
+scripts/weather_data_mvse_prep.R does the following:
+1. reads in climate data from visualcrossing
+2. splits by grouping variables determined by the geographical grouping variable (--geo)
+3. calculates average temperature, humidity and rainfall
+4. Removes negative temperatures
+5. filters by desired date range
+6. calculate p from month lower to month higher for each year
+5. writes files to data_mid to then be run by MVSE_loop.R
+
+#it is in bash because that is how the options parser wants to run
+```{bash}
+scripts/weather_data_mvse_prep.R --geo centroid --datelower 2000-01-01 --dateupper 2020-12-31 --monthlower 4 --monthupper 10
+```
+
+WHAT SCRIPT DOES
+1. loads in functions from MVSE package
+2. defines paramaters
+3. calculates index P
+4. writes files to data_mid
+
+```{bash}
+scripts/MVSE_loop.R --directory centroid/
+```
+
+
+WHAT SCRIPT BELOW DOES
+1. compiles index P output for the various geographic resultions and outputs into one csv file
+
+NOTE that --geo state_year -datelower 2015-01-01 -dateupper 2020-12-31 is the default
+```{bash}
+scripts/mvse_output.R --geo centroid --datelower 2000-01-01 --dateupper 2020-12-31
+```
+
+WHAT SCRIPT BELOW DOES
+scripts/cases.R does the following
+1. reads in case data for humans and non-humans and combines them
+
+```{r}
+source("scripts/cases.R")
+```
+
+WHAT SCRIPT BELOW DOES
+
+```{r}
+source("scripts/mosquitoes.R")
+```
+
+WHAT SCRIPT BELOW DOES
+- combines the mvse, mosquito, and case data into one file and creates files grouped by different year variables
+- creates monthly data file called 
+```{r}
+source("scripts/data_combine.R")
+```
+
+
+WHAT SCRIPT DOES
+```{r}
+source("scripts/data_clean_for_model.R")
+```
+
+WHAT SCRIPT BELOW DOES
+
+```{r}
+source("scripts/modeling.R")
+```
+
